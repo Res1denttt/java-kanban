@@ -1,23 +1,25 @@
 package manager.historyManager;
 
-import manager.historyManagement.HistoryManager;
 import manager.taskManagement.InMemoryTaskManager;
 import model.Epic;
 import model.Status;
 import model.Subtask;
+import model.Task;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 public class InMemoryHistoryManagerTest {
     InMemoryTaskManager manager = new InMemoryTaskManager();
-    HistoryManager historyManager = manager.getHistoryManager();
 
     @Test
     void savesPreviousVersionOfTask() {
         Epic epic = new Epic("Abc", "Some description", Status.NEW);
         manager.addTask(epic);
         manager.getEpicById(epic.getId());
-        Epic historyEpic = (Epic) historyManager.getHistory().getFirst();
+        List<Task> lastViewedTasks = manager.getHistory();
+        Epic historyEpic = (Epic) lastViewedTasks.getFirst();
         Assertions.assertEquals(epic, historyEpic);
         long id = historyEpic.getId();
         Subtask newSubtask = new Subtask("Lpo", "Another description", Status.IN_PROGRESS, epic);

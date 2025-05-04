@@ -11,7 +11,7 @@ public class InMemoryTaskManager implements TaskManager {
     private final Map<Long, Task> tasks = new HashMap<>();
     private final Map<Long, Epic> epics = new HashMap<>();
     private final Map<Long, Subtask> subtasks = new HashMap<>();
-    public final HistoryManager historyManager = Managers.getDefaultHistory();
+    private final HistoryManager historyManager = Managers.getDefaultHistory();
 
     @Override
     public long generateId() {
@@ -170,9 +170,5 @@ public class InMemoryTaskManager implements TaskManager {
     private boolean taskExistsInMap(Task task) {
         long id = task.getId();
         return tasks.containsKey(id) || epics.containsKey(id) || subtasks.containsKey(id);
-    }
-
-    public HistoryManager getHistoryManager() {
-        return historyManager;
     }
 }
