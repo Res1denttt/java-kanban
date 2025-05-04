@@ -3,7 +3,7 @@ package model;
 import java.util.*;
 
 public class Epic extends Task {
-    private final Set<Subtask> subtaskSet; // заменил на хэшсет, чтобы не было задвоения при update subtask
+    private final Set<Subtask> subtaskSet;
 
     public Epic(String name, String description, Status status) {
         super(name, description, status);
