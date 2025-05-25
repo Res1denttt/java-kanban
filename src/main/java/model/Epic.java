@@ -3,19 +3,19 @@ package model;
 import java.util.*;
 
 public class Epic extends Task {
-    private final Set<Subtask> subtaskSet;
+    private final List<Subtask> subtaskList;
 
     public Epic(String name, String description, Status status) {
         super(name, description, status);
-        subtaskSet = new HashSet<>();
+        subtaskList = new ArrayList<>();
     }
 
-    public Set<Subtask> getSubtaskSet() {
-        return subtaskSet;
+    public List<Subtask> getSubtaskList() {
+        return subtaskList;
     }
 
     public void addSubtask(Subtask subtask) {
-        subtaskSet.add(subtask);
+        subtaskList.add(subtask);
     }
 
     @Override

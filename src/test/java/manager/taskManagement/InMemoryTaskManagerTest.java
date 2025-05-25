@@ -7,7 +7,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.Set;
 
 public class InMemoryTaskManagerTest {
     TaskManager manager;
@@ -80,11 +79,11 @@ public class InMemoryTaskManagerTest {
     @Test
     void taskShouldNotAlterAfterBeenAdded() {
         Epic epic = new Epic("Abc", "Some description", Status.NEW);
-        Assertions.assertTrue(epic.getSubtaskSet().isEmpty());
+        Assertions.assertTrue(epic.getSubtaskList().isEmpty());
         manager.addTask(epic);
         Assertions.assertEquals("Abc", epic.getName());
         Assertions.assertEquals("Some description", epic.getDescription());
-        Assertions.assertTrue(epic.getSubtaskSet().isEmpty());
+        Assertions.assertTrue(epic.getSubtaskList().isEmpty());
         Subtask subtask = new Subtask("Qwe", "Another description", Status.DONE, epic);
         manager.addTask(subtask);
         Assertions.assertEquals("Qwe", subtask.getName());
@@ -143,7 +142,19 @@ public class InMemoryTaskManagerTest {
         Epic newEpic = new Epic("Another Epic name", "Another Epic description", Status.DONE);
         newEpic.setId(id);
         manager.updateTask(newEpic);
-        Assertions.assertEquals(Set.of(subtask1, subtask2), manager.getEpicSubtasks(newEpic));
+        Assertions.assertEquals(List.of(subtask1, subtask2), manager.getEpicSubtasks(newEpic));
         Assertions.assertEquals(newEpic, manager.getEpicById(id));
+    }
+
+    @Test
+    void epicShouldNotContainDeletedSubtask() {
+        Epic epic = new Epic("Epic name", "Epic description", Status.NEW);
+        manager.addTask(epic);
+        Subtask subtask1 = new Subtask("Abc", "Some description", Status.NEW, epic);
+        manager.addTask(subtask1);
+        Subtask subtask2 = new Subtask("Qwe", "Some description", Status.NEW, epic);
+        manager.addTask(subtask2);
+        manager.deleteSubtaskById(subtask1.getId());
+        Assertions.assertEquals(List.of(subtask2), epic.getSubtaskList());
     }
 }

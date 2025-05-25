@@ -30,7 +30,7 @@ public interface TaskManager {
 
     public Subtask getSubtaskById(long id);
 
-    public Set<Subtask> getEpicSubtasks(Epic epic);
+    public List<Subtask> getEpicSubtasks(Epic epic);
 
     public void addTask(Task task);
 

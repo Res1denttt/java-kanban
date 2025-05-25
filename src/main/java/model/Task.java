@@ -19,6 +19,7 @@ public class Task {
     }
 
     public void setId(long id) {
+        if (id < 0) return;
         this.id = id;
     }
 
