@@ -10,14 +10,13 @@ import java.util.Map;
 public class InMemoryHistoryManager implements HistoryManager {
     private final Map<Long, Node> historyMap = new HashMap<>();
 
-    Node head;
-    Node tail;
+    private Node head;
+    private Node tail;
 
     @Override
     public void add(Task task) {
-        long id = task.getId();
-        if (historyMap.containsKey(id)) {
-            removeNode(historyMap.get(id));
+        if (exists(task)) {
+            removeNode(historyMap.get(task.getId()));
         }
         Node newNode = linkLast(task);
         historyMap.put(task.getId(), newNode);
@@ -30,7 +29,7 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void remove(long id) {
-        if (!historyMap.containsKey(id)) return;
+        if (!exists(id)) return;
         Node node = historyMap.get(id);
         removeNode(node);
         historyMap.remove(id);
@@ -76,5 +75,11 @@ public class InMemoryHistoryManager implements HistoryManager {
         return lastViewedTasks;
     }
 
+    private boolean exists(Task task) {
+        return historyMap.containsKey(task.getId());
+    }
 
+    private boolean exists(long id) {
+        return historyMap.containsKey(id);
+    }
 }

@@ -75,7 +75,4 @@ public class InMemoryHistoryManagerTest {
         manager.getSubtaskById(subtask3.getId());
         Assertions.assertEquals(List.of(epic2, task1, subtask3), manager.getHistory());
     }
-
-//    @Test
-//    void
 }
