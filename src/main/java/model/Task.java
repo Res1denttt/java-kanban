@@ -67,6 +67,6 @@ public class Task {
     }
 
     public TaskTypes getTaskType() {
-            return TaskTypes.TASK;
+        return TaskTypes.TASK;
     }
 }
