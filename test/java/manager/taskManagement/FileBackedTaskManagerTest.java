@@ -6,14 +6,21 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
-public class InMemoryTaskManagerTest {
-    TaskManager manager;
+public class FileBackedTaskManagerTest {
+    FileBackedTaskManager manager;
+    Path path;
 
     @BeforeEach
-    void beforeEach() {
-        manager = Managers.getDefault();
+    void beforeEach() throws IOException {
+        path = File.createTempFile("tempFile", "csv").toPath();
+        manager = new FileBackedTaskManager(path);
     }
 
     @Test
@@ -156,5 +163,49 @@ public class InMemoryTaskManagerTest {
         manager.addTask(subtask2);
         manager.deleteSubtaskById(subtask1.getId());
         Assertions.assertEquals(List.of(subtask2), epic.getSubtaskList());
+    }
+
+    @Test
+    void savesTasksInFile() throws IOException {
+        Task task1 = new Task("Abc", "Some description", Status.NEW);
+        manager.addTask(task1);
+        Epic epic1 = new Epic("Epic name", "Epic description", Status.NEW);
+        manager.addTask(epic1);
+        Subtask subtask1 = new Subtask("Abc", "Some description", Status.NEW, epic1);
+        manager.addTask(subtask1);
+
+        List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+        Assertions.assertEquals(task1, manager.fromString(lines.getFirst()));
+        Assertions.assertEquals(epic1, manager.fromString(lines.get(1)));
+        Assertions.assertEquals(subtask1, manager.fromString(lines.get(2)));
+    }
+
+    @Test
+    void loadsTasksFromFile() throws IOException {
+        Task task1 = new Task("Abc", "Some description", Status.NEW);
+        manager.addTask(task1);
+        Epic epic1 = new Epic("Epic name", "Epic description", Status.NEW);
+        manager.addTask(epic1);
+        Subtask subtask1 = new Subtask("Abc", "Some description", Status.NEW, epic1);
+        manager.addTask(subtask1);
+
+        FileBackedTaskManager manager1 = FileBackedTaskManager.loadFromFile(path);
+        Assertions.assertEquals(task1, manager1.getTaskById(0));
+        Assertions.assertEquals(epic1, manager1.getEpicById(1));
+        Assertions.assertEquals(subtask1, manager1.getSubtaskById(2));
+    }
+
+    @Test
+    void saveEmptyFile() throws IOException {
+        manager.save();
+        List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+        Assertions.assertTrue(lines.isEmpty());
+    }
+
+    @Test
+    void loadEmptyFile() {
+        FileBackedTaskManager manager1 = FileBackedTaskManager.loadFromFile(path);
+        Assertions.assertTrue(manager1.tasks.isEmpty() && manager1.epics.isEmpty() &&
+                manager1.subtasks.isEmpty());
     }
 }
