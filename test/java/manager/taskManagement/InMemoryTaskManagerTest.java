@@ -1,6 +1,5 @@
 package manager.taskManagement;
 
-import manager.Managers;
 import model.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,7 +12,7 @@ public class InMemoryTaskManagerTest {
 
     @BeforeEach
     void beforeEach() {
-        manager = Managers.getDefault();
+        manager = new InMemoryTaskManager();
     }
 
     @Test

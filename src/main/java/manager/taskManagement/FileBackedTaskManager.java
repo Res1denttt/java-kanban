@@ -13,7 +13,7 @@ import java.util.List;
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final Path file;
 
-    public FileBackedTaskManager(Path file) {
+    private FileBackedTaskManager(Path file) {
         this.file = file;
     }
 
@@ -40,7 +40,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 manager.addTask(manager.fromString(line));
             }
         } catch (IOException e) {
-            throw new ManagerSaveException();
+            throw new ManagerLoadException();
         }
         return manager;
     }
