@@ -8,10 +8,10 @@ import model.*;
 
 public class InMemoryTaskManager implements TaskManager {
     private long i;
-    private final Map<Long, Task> tasks = new HashMap<>();
-    private final Map<Long, Epic> epics = new HashMap<>();
-    private final Map<Long, Subtask> subtasks = new HashMap<>();
-    private final HistoryManager historyManager = Managers.getDefaultHistory();
+    protected final Map<Long, Task> tasks = new HashMap<>();
+    protected final Map<Long, Epic> epics = new HashMap<>();
+    protected final Map<Long, Subtask> subtasks = new HashMap<>();
+    protected final HistoryManager historyManager = Managers.getDefaultHistory();
 
     @Override
     public long generateId() {
@@ -81,9 +81,9 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void addTask(Task task) {
         if (task == null) return;
-        do {
+        while (taskExistsInMap(task)) {
             task.setId(generateId());
-        } while (taskExistsInMap(task));
+        }
         putInMap(task);
     }
 
@@ -171,7 +171,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
-    private boolean taskExistsInMap(Task task) {
+    protected boolean taskExistsInMap(Task task) {
         long id = task.getId();
         return tasks.containsKey(id) || epics.containsKey(id) || subtasks.containsKey(id);
     }

@@ -65,4 +65,8 @@ public class Task {
                 ", status=" + status +
                 '}';
     }
+
+    public TaskTypes getTaskType() {
+        return TaskTypes.TASK;
+    }
 }
