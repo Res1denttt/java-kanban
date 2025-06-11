@@ -3,6 +3,7 @@ package manager;
 import manager.historyManagement.HistoryManager;
 import manager.historyManagement.InMemoryHistoryManager;
 import manager.taskManagement.FileBackedTaskManager;
+import manager.taskManagement.ManagerLoadException;
 import manager.taskManagement.TaskManager;
 
 import java.io.IOException;
@@ -17,7 +18,7 @@ public class Managers {
             try {
                 Files.createFile(path);
             } catch (IOException e) {
-                throw new RuntimeException();
+                throw new ManagerLoadException();
             }
 
         }
