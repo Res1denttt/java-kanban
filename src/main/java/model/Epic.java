@@ -1,9 +1,12 @@
 package model;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class Epic extends Task {
     private final List<Subtask> subtaskList;
+    private LocalDateTime endTime;
+
 
     public Epic(String name, String description, Status status) {
         super(name, description, status);
@@ -16,6 +19,15 @@ public class Epic extends Task {
 
     public void addSubtask(Subtask subtask) {
         subtaskList.add(subtask);
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
+
+    @Override
+    public Optional<LocalDateTime> getEndTime() {
+        return Optional.ofNullable(endTime);
     }
 
     @Override
