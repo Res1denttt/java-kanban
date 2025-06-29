@@ -8,10 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
@@ -115,24 +112,15 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     public Task fromString(String value) {
         String[] values = value.split(","); //id,type,name,status,description, duration, startTime, epic
-        Status status;
-        TaskTypes type;
-        Duration duration;
+        long id = Long.parseLong(values[0]);
+        TaskTypes type = TaskTypes.parseType(values[1]);
+        Status status = Status.parseStatus(values[3]);
+        Duration duration = Duration.ofMinutes(Long.parseLong(values[5]));
         LocalDateTime startTime;
-        long id;
-        try {
-            id = Long.parseLong(values[0]);
-            type = TaskTypes.parseType(values[1]);
-            status = Status.parseStatus(values[3]);
-            duration = Duration.ofMinutes(Long.parseLong(values[5]));
-            if (!values[6].equals("0")) {
-                startTime = LocalDateTime.parse(values[6]);
-            } else {
-                startTime = null;
-            }
-        } catch (IllegalStateException | NumberFormatException | DateTimeParseException e) {
-            System.out.println(e.getMessage());
-            return null;
+        if (!values[6].equals("0")) {
+            startTime = LocalDateTime.parse(values[6]);
+        } else {
+            startTime = null;
         }
         String name = values[2];
         String description = values[4];

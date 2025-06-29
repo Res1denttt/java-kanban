@@ -120,4 +120,61 @@ abstract class HistoryManagerTest {
         manager.getSubtaskById(subtask3.getId());
         Assertions.assertEquals(List.of(epic2, task1, subtask3), manager.getHistory());
     }
+
+    @Test
+    void shouldDeleteAllTasks() {
+        Task task = new Task("Uty", "One more task", Status.IN_PROGRESS);
+        manager.addTask(task);
+        Epic epic = new Epic("Epic name", "Epic description", Status.NEW);
+        manager.addTask(epic);
+        Subtask subtask1 = new Subtask("Abc", "Some description", Status.DONE, epic);
+        manager.addTask(subtask1);
+        Task task2 = new Task("Myu", "to do", Status.NEW);
+        manager.addTask(task2);
+        manager.getTaskById(task.getId());
+        manager.getEpicById(epic.getId());
+        manager.getSubtaskById(subtask1.getId());
+        manager.getTaskById(task2.getId());
+        Assertions.assertEquals(4, manager.getHistory().size());
+        manager.deleteAllTasks();
+        Assertions.assertEquals(2, manager.getHistory().size());
+    }
+
+    @Test
+    void shouldDeleteAllEpicsAndSubtasks() {
+        Epic epic2 = new Epic("Uty", "One more task", Status.IN_PROGRESS);
+        manager.addTask(epic2);
+        Epic epic = new Epic("Epic name", "Epic description", Status.NEW);
+        manager.addTask(epic);
+        Subtask subtask1 = new Subtask("Abc", "Some description", Status.DONE, epic);
+        manager.addTask(subtask1);
+        Subtask subtask2 = new Subtask("Qwe", "Some description", Status.DONE, epic2);
+        manager.addTask(subtask2);
+        manager.getEpicById(epic.getId());
+        manager.getSubtaskById(subtask1.getId());
+        manager.getSubtaskById(subtask2.getId());
+        manager.getEpicById(epic2.getId());
+        Assertions.assertEquals(4, manager.getHistory().size());
+        manager.deleteAllEpics();
+        Assertions.assertEquals(0, manager.getHistory().size());
+    }
+
+    @Test
+    void shouldDeleteAllSubtasks() {
+        Task task = new Task("Uty", "One more task", Status.IN_PROGRESS);
+        manager.addTask(task);
+        Epic epic = new Epic("Epic name", "Epic description", Status.NEW);
+        manager.addTask(epic);
+        Subtask subtask1 = new Subtask("Abc", "Some description", Status.DONE, epic);
+        manager.addTask(subtask1);
+        Subtask subtask2 = new Subtask("Qwe", "Some description", Status.DONE, epic);
+        manager.addTask(subtask2);
+        manager.getTaskById(task.getId());
+        manager.getEpicById(epic.getId());
+        manager.getSubtaskById(subtask1.getId());
+        manager.getSubtaskById(subtask2.getId());
+        Assertions.assertEquals(4, manager.getHistory().size());
+        manager.deleteAllSubtasks();
+        Assertions.assertEquals(2, manager.getHistory().size());
+    }
 }

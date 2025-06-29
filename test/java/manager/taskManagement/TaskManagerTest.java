@@ -103,10 +103,14 @@ abstract class TaskManagerTest<T extends TaskManager> {
         manager.addTask(task1);
         Task task2 = new Task("Qwe", "Some description", Status.NEW);
         manager.addTask(task2);
+        manager.getTaskById(task1.getId());
+        manager.getTaskById(task2.getId());
         Assertions.assertEquals(2, manager.getAllTasks().size());
+        Assertions.assertEquals(2, manager.getHistory().size());
         manager.deleteTaskById(0);
         Assertions.assertEquals(1, manager.getAllTasks().size());
         Assertions.assertEquals(task2, manager.getAllTasks().getFirst());
+        Assertions.assertEquals(1, manager.getHistory().size());
     }
 
     @Test
@@ -115,10 +119,19 @@ abstract class TaskManagerTest<T extends TaskManager> {
         manager.addTask(epic1);
         Epic epic2 = new Epic("Qwe", "Some description", Status.DONE);
         manager.addTask(epic2);
+        Subtask subtask1 = new Subtask("Abc", "Some description", Status.NEW, epic1);
+        manager.addTask(subtask1);
+        manager.getEpicById(epic1.getId());
+        manager.getEpicById(epic2.getId());
+        manager.getSubtaskById(subtask1.getId());
         Assertions.assertEquals(2, manager.getAllEpics().size());
+        Assertions.assertEquals(1, manager.getAllSubtasks().size());
+        Assertions.assertEquals(3, manager.getHistory().size());
         manager.deleteEpicById(0);
         Assertions.assertEquals(1, manager.getAllEpics().size());
         Assertions.assertEquals(epic2, manager.getAllEpics().getFirst());
+        Assertions.assertEquals(0, manager.getAllSubtasks().size());
+        Assertions.assertEquals(1, manager.getHistory().size());
     }
 
     @Test
@@ -166,13 +179,15 @@ abstract class TaskManagerTest<T extends TaskManager> {
     @Test
     void shouldReturnPrioritizedTasks() {
         Epic epic = new Epic("Epic name", "Epic description", Status.NEW);
-        epic.setStartTime(LocalDateTime.of(2024, 6, 24, 12, 30));
         manager.addTask(epic);
-        Subtask subtask1 = new Subtask("Abc", "Some description", Status.NEW, epic);
-        subtask1.setStartTime(LocalDateTime.now());
+        Subtask subtask1 = new Subtask("Abc", "Some description", Status.NEW, epic, Duration.ofHours(10),
+                LocalDateTime.of(2024, 6, 24, 8, 30));
         manager.addTask(subtask1);
-        Subtask subtask2 = new Subtask("Qwe", "Some description", Status.NEW, epic);
+        Subtask subtask2 = new Subtask("Qwe", "Some description", Status.NEW, epic, Duration.ofHours(25),
+                LocalDateTime.of(2024, 4, 24, 10, 40));
         manager.addTask(subtask2);
+        Subtask subtask3 = new Subtask("Lop", "Some description", Status.DONE, epic);
+        manager.addTask(subtask3);
         Set<Task> tasks = new TreeSet<>(Comparator.comparing(task -> task.getStartTime().get()));
         tasks.add(subtask1);
         tasks.add(epic);
@@ -261,5 +276,24 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 LocalDateTime.of(2022, 5, 14, 18, 40));
         manager.addTask(subtask2);
         Assertions.assertEquals(Status.IN_PROGRESS, epic.getStatus());
+    }
+
+    @Test
+    void shouldDeleteAllSubtasks() {
+        Task task = new Task("Uty", "One more task", Status.IN_PROGRESS, Duration.ofDays(300),
+                LocalDateTime.of(2024, 3, 12, 12, 10));
+        manager.addTask(task);
+        Epic epic = new Epic("Epic name", "Epic description", Status.NEW);
+        manager.addTask(epic);
+        Subtask subtask1 = new Subtask("Abc", "Some description", Status.DONE, epic, Duration.ofHours(10),
+                LocalDateTime.of(2024, 6, 24, 8, 30));
+        manager.addTask(subtask1);
+        Subtask subtask2 = new Subtask("Qwe", "Some description", Status.DONE, epic, Duration.ofHours(25),
+                LocalDateTime.of(2022, 5, 14, 18, 40));
+        manager.addTask(subtask2);
+        manager.deleteAllSubtasks();
+        Assertions.assertTrue(manager.getAllSubtasks().isEmpty());
+        Assertions.assertEquals(1, manager.getPrioritizedTasks().size());
+        Assertions.assertEquals(0, epic.getSubtaskList().size());
     }
 }
