@@ -1,17 +1,46 @@
 package model;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.Optional;
 
 public class Task {
     protected long id;
     protected String name;
     protected String description;
     protected Status status;
+    protected Duration duration;
+    protected LocalDateTime startTime;
+
+    public Task(String name, String description, Status status, Duration duration, LocalDateTime startTime) {
+        this.name = name;
+        this.description = description;
+        this.status = status;
+        this.duration = duration;
+        this.startTime = startTime;
+    }
 
     public Task(String name, String description, Status status) {
         this.name = name;
         this.description = description;
         this.status = status;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public Optional<Duration> getDuration() {
+        return Optional.ofNullable(duration);
+    }
+
+    public Optional<LocalDateTime> getStartTime() {
+        return Optional.ofNullable(startTime);
     }
 
     public long getId() {
@@ -43,6 +72,15 @@ public class Task {
         this.description = description;
     }
 
+    public Optional<LocalDateTime> getEndTime() {
+        Optional<Duration> duration = getDuration();
+        Optional<LocalDateTime> startTime = getStartTime();
+        if (startTime.isPresent() && duration.isPresent()) {
+            return Optional.of(startTime.get().plus(duration.get()));
+        }
+        return Optional.empty();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -68,5 +106,15 @@ public class Task {
 
     public TaskTypes getTaskType() {
         return TaskTypes.TASK;
+    }
+
+    public boolean crossAnotherTask(Task other) {
+        if (getEndTime().isEmpty() || other.getEndTime().isEmpty()) return false;
+        LocalDateTime taskEndTime = getEndTime().get();
+        LocalDateTime otherEndTime = other.getEndTime().get();
+        if (taskEndTime.isBefore(other.startTime) || (startTime.isAfter(otherEndTime))) {
+            return false;
+        }
+        return true;
     }
 }
