@@ -18,7 +18,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         this.file = file;
     }
 
-    public void save() {
+    public void save() throws ManagerSaveException {
         List<Task> taskList = new ArrayList<>(tasks.values());
         taskList.addAll(epics.values());
         taskList.addAll(subtasks.values());
@@ -47,49 +47,51 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void deleteAllTasks() {
+    public void deleteAllTasks() throws ManagerSaveException {
         super.deleteAllTasks();
         save();
     }
 
     @Override
-    public void deleteAllEpics() {
+    public void deleteAllEpics() throws ManagerSaveException {
         super.deleteAllEpics();
         save();
     }
 
     @Override
-    public void deleteAllSubtasks() {
+    public void deleteAllSubtasks() throws ManagerSaveException {
         super.deleteAllSubtasks();
         save();
     }
 
     @Override
-    public void addTask(Task task) {
-        super.addTask(task);
+    public int addTask(Task task) throws ManagerSaveException {
+        int result = super.addTask(task);
         save();
+        return result;
     }
 
     @Override
-    public void updateTask(Task task) {
-        super.updateTask(task);
+    public int updateTask(Task task) throws ManagerSaveException {
+        int result = super.updateTask(task);
         save();
+        return result;
     }
 
     @Override
-    public void deleteTaskById(long id) {
+    public void deleteTaskById(long id) throws NotFoundException, ManagerSaveException {
         super.deleteTaskById(id);
         save();
     }
 
     @Override
-    public void deleteEpicById(long id) {
+    public void deleteEpicById(long id) throws ManagerSaveException {
         super.deleteEpicById(id);
         save();
     }
 
     @Override
-    public void deleteSubtaskById(long id) {
+    public void deleteSubtaskById(long id) throws ManagerSaveException {
         super.deleteSubtaskById(id);
         save();
     }
@@ -105,7 +107,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 .append(task.getDuration().orElse(Duration.ZERO).toMinutes()).append(DELIMITER)
                 .append(Objects.toString(task.getStartTime().orElse(null), "0")).append(DELIMITER);
         if (task instanceof Subtask) {
-            sb.append(((Subtask) task).getEpic().getId());
+            sb.append(((Subtask) task).getEpicId());
         }
         return sb.toString();
     }

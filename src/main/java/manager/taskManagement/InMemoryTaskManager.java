@@ -74,6 +74,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task getTaskById(long id) {
+        if (!tasks.containsKey(id)) throw new NotFoundException();
         Task task = tasks.get(id);
         historyManager.add(task);
         return task;
@@ -81,6 +82,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Epic getEpicById(long id) {
+        if (!epics.containsKey(id)) throw new NotFoundException();
         Epic epic = epics.get(id);
         historyManager.add(epic);
         return epic;
@@ -88,6 +90,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Subtask getSubtaskById(long id) {
+        if (!subtasks.containsKey(id)) throw new NotFoundException();
         Subtask subtask = subtasks.get(id);
         historyManager.add(subtask);
         return subtask;
@@ -99,35 +102,41 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void addTask(Task task) {
-        if (task == null) return;
-        while (taskExistsInMap(task)) {
+    public int addTask(Task task) {
+        if (task == null) return -1;
+        while (taskExistsInAnyMap(task)) {
             task.setId(generateId());
         }
-        if (crossOtherTaskInManager(task)) return;
+        if (crossOtherTaskInManager(task)) return -1;
         putInMap(task);
         addPrioritizedTasks(task);
+        return 1;
     }
 
     @Override
-    public void updateTask(Task task) {
-        if (task == null || !taskExistsInMap(task) || crossOtherTaskInManager(task)) return;
+    public int updateTask(Task task) {
+        if (task == null || !taskExistsInMap(task) || crossOtherTaskInManager(task)) return -1;
         if (task instanceof Epic) {
             for (Subtask subtask : subtasks.values()) {
-                if (subtask.getEpic().getId() == task.getId()) {
+                if (subtask.getEpicId() == task.getId()) {
                     Epic epic = (Epic) task;
                     epic.addSubtask(subtask);
-                    subtask.setEpic(epic);
+                    subtask.setEpicId(epic.getId());
                 }
             }
+        } else if (task instanceof Subtask subtask) {
+            Epic epic = epics.get((subtask.getEpicId()));
+            epic.deleteFormSubtaskList(subtask);
+            updateEpic(epic);
         }
         putInMap(task);
         addPrioritizedTasks(task);
+        return 1;
     }
 
     @Override
-    public void deleteTaskById(long id) {
-        if (!tasks.containsKey(id)) return;
+    public void deleteTaskById(long id) throws NotFoundException {
+        if (!tasks.containsKey(id)) throw new NotFoundException();
         deleteFromPrioritizedTasks(tasks.get(id));
         tasks.remove(id);
         historyManager.remove(id);
@@ -153,7 +162,7 @@ public class InMemoryTaskManager implements TaskManager {
         Subtask subtask = subtasks.get(id);
         deleteFromPrioritizedTasks(subtask);
         subtasks.remove(id);
-        Epic epic = subtask.getEpic();
+        Epic epic = epics.get(subtask.getEpicId());
         List<Subtask> subtaskList = epic.getSubtaskList();
         subtaskList.remove(subtask);
         updateEpic(epic);
@@ -182,7 +191,9 @@ public class InMemoryTaskManager implements TaskManager {
                 epics.put(task.getId(), e);
             }
             case Subtask s -> {
-                updateEpic(s.getEpic());
+                Epic epic = epics.get(s.getEpicId());
+                epic.addSubtask(s);
+                updateEpic(epic);
                 subtasks.put(task.getId(), s);
             }
             case Task t -> tasks.put(task.getId(), task);
@@ -246,14 +257,30 @@ public class InMemoryTaskManager implements TaskManager {
         if (other.getEndTime().isEmpty()) return false;
         Set<Task> tasks = getPrioritizedTasks();
         for (Task task : tasks) {
+            if (task.equals(other)) continue;
             if (task.crossAnotherTask(other)) return true;
         }
         return false;
     }
 
 
-    private boolean taskExistsInMap(Task task) {
+    private boolean taskExistsInAnyMap(Task task) {
         long id = task.getId();
         return tasks.containsKey(id) || epics.containsKey(id) || subtasks.containsKey(id);
+    }
+
+    private boolean taskExistsInMap(Task task) {
+        long id = task.getId();
+        switch (task) {
+            case Epic e -> {
+                return epics.containsKey(id);
+            }
+            case Subtask s -> {
+                return subtasks.containsKey(id);
+            }
+            case Task t -> {
+                return tasks.containsKey(id);
+            }
+        }
     }
 }

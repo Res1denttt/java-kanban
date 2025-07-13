@@ -32,9 +32,9 @@ public interface TaskManager {
 
     List<Subtask> getEpicSubtasks(Epic epic);
 
-    void addTask(Task task);
+    int addTask(Task task);
 
-    void updateTask(Task task);
+    int updateTask(Task task);
 
     void deleteTaskById(long id);
 

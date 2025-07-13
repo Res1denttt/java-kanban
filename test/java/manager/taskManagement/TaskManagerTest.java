@@ -38,6 +38,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     @Test
     void shouldAddSubtask() {
         Epic epic = new Epic("Qwe", "Some description", Status.NEW);
+        manager.addTask(epic);
         manager.addTask(new Subtask("Zxc", "Some description", Status.NEW, epic));
         List<Subtask> allSubtasks = manager.getAllSubtasks();
         Assertions.assertFalse(allSubtasks.isEmpty());
@@ -62,6 +63,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     @Test
     void shouldFindSubtaskById() {
         Epic epic = new Epic("Abc", "Some description", Status.NEW);
+        manager.addTask(epic);
         Subtask subtask = new Subtask("Abc", "Some description", Status.NEW, epic);
         manager.addTask(subtask);
         long id = subtask.getId();
@@ -94,7 +96,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         Assertions.assertEquals("Qwe", subtask.getName());
         Assertions.assertEquals("Another description", subtask.getDescription());
         Assertions.assertEquals(Status.DONE, subtask.getStatus());
-        Assertions.assertEquals(epic, subtask.getEpic());
+        Assertions.assertEquals(epic.getId(), subtask.getEpicId());
     }
 
     @Test
