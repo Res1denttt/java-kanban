@@ -7,7 +7,6 @@ import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -17,11 +16,7 @@ public class TasksHandlerTest extends HandlerTest {
     void shouldReturnAllTasks() throws IOException, InterruptedException {
         taskManager.addTask(new Task("Task name", "Task description", Status.IN_PROGRESS));
         URI url = URI.create("http://localhost:8080/tasks");
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(url)
-                .GET()
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = getGetResponse(url);
         Assertions.assertEquals(200, response.statusCode());
         Assertions.assertFalse(taskManager.getAllTasks().isEmpty());
         String jsonString = gson.toJson(taskManager.getAllTasks());
@@ -32,11 +27,7 @@ public class TasksHandlerTest extends HandlerTest {
     void shouldReturnTaskById() throws IOException, InterruptedException {
         taskManager.addTask(new Task("Task name", "Task description", Status.IN_PROGRESS));
         URI url = URI.create("http://localhost:8080/tasks/0");
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(url)
-                .GET()
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = getGetResponse(url);
         Assertions.assertEquals(200, response.statusCode());
         String jsonString = gson.toJson(taskManager.getTaskById(0));
         Assertions.assertEquals(jsonString, response.body());
@@ -46,11 +37,7 @@ public class TasksHandlerTest extends HandlerTest {
     void shouldReturn404IfTaskIsNotFound() throws IOException, InterruptedException {
         taskManager.addTask(new Task("Task name", "Task description", Status.IN_PROGRESS));
         URI url = URI.create("http://localhost:8080/tasks/24");
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(url)
-                .GET()
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = getGetResponse(url);
         Assertions.assertEquals(404, response.statusCode());
     }
 
@@ -58,11 +45,7 @@ public class TasksHandlerTest extends HandlerTest {
     void shouldDeleteTaskById() throws IOException, InterruptedException {
         taskManager.addTask(new Task("Task name", "Task description", Status.IN_PROGRESS));
         URI url = URI.create("http://localhost:8080/tasks/0");
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(url)
-                .DELETE()
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = getDeleteResponse(url);
         Assertions.assertEquals(200, response.statusCode());
         Assertions.assertTrue(taskManager.getAllTasks().isEmpty());
         Assertions.assertTrue(response.body().isEmpty());
@@ -71,13 +54,8 @@ public class TasksHandlerTest extends HandlerTest {
     @Test
     void shouldCreateNewTask() throws IOException, InterruptedException {
         Task task = new Task("Task name", "Task description", Status.IN_PROGRESS, Duration.ofHours(4), LocalDateTime.of(2020, 5, 12, 10, 0));
-        String jsonString = gson.toJson(task);
         URI url = URI.create("http://localhost:8080/tasks");
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(jsonString))
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = getPostResponse(url, task);
         Assertions.assertEquals(201, response.statusCode());
         Assertions.assertEquals(task, taskManager.getTaskById(0));
     }
@@ -88,13 +66,8 @@ public class TasksHandlerTest extends HandlerTest {
         taskManager.addTask(task);
         Task task2 = new Task("Task name", "Task description", Status.DONE, Duration.ofHours(4), LocalDateTime.of(2020, 5, 12, 10, 0));
         task2.setId(task.getId());
-        String jsonString = gson.toJson(task2);
         URI url = URI.create("http://localhost:8080/tasks");
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(jsonString))
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = getPostResponse(url, task2);
         Assertions.assertEquals(201, response.statusCode());
         Assertions.assertEquals(Status.DONE, taskManager.getTaskById(0).getStatus());
     }
@@ -105,13 +78,8 @@ public class TasksHandlerTest extends HandlerTest {
         taskManager.addTask(task);
         Task task2 = new Task("Task name", "Task description", Status.DONE, Duration.ofHours(4), LocalDateTime.of(2020, 5, 12, 10, 0));
         task2.setId(25);
-        String jsonString = gson.toJson(task2);
         URI url = URI.create("http://localhost:8080/tasks");
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(jsonString))
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = getPostResponse(url, task2);
         Assertions.assertEquals(406, response.statusCode());
         Assertions.assertEquals(1, taskManager.getAllTasks().size());
     }

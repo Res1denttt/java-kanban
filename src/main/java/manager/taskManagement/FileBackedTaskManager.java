@@ -47,51 +47,51 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void deleteAllTasks() throws ManagerSaveException {
+    public void deleteAllTasks() {
         super.deleteAllTasks();
         save();
     }
 
     @Override
-    public void deleteAllEpics() throws ManagerSaveException {
+    public void deleteAllEpics() {
         super.deleteAllEpics();
         save();
     }
 
     @Override
-    public void deleteAllSubtasks() throws ManagerSaveException {
+    public void deleteAllSubtasks() {
         super.deleteAllSubtasks();
         save();
     }
 
     @Override
-    public int addTask(Task task) throws ManagerSaveException {
+    public int addTask(Task task) {
         int result = super.addTask(task);
         save();
         return result;
     }
 
     @Override
-    public int updateTask(Task task) throws ManagerSaveException {
+    public int updateTask(Task task) {
         int result = super.updateTask(task);
         save();
         return result;
     }
 
     @Override
-    public void deleteTaskById(long id) throws NotFoundException, ManagerSaveException {
+    public void deleteTaskById(long id) {
         super.deleteTaskById(id);
         save();
     }
 
     @Override
-    public void deleteEpicById(long id) throws ManagerSaveException {
+    public void deleteEpicById(long id) {
         super.deleteEpicById(id);
         save();
     }
 
     @Override
-    public void deleteSubtaskById(long id) throws ManagerSaveException {
+    public void deleteSubtaskById(long id) {
         super.deleteSubtaskById(id);
         save();
     }

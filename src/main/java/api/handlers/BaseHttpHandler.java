@@ -1,11 +1,17 @@
 package api.handlers;
 
+import api.GsonSerializer;
+import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
+import manager.taskManagement.TaskManager;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 public abstract class BaseHttpHandler {
+    protected Gson gson = GsonSerializer.getGson();
+    protected TaskManager taskManager;
+
     protected void sendText(HttpExchange exchange, String text) {
         byte[] response = text.getBytes(StandardCharsets.UTF_8);
         exchange.getResponseHeaders().add("Content-Type", "application/json;charset=utf-8");

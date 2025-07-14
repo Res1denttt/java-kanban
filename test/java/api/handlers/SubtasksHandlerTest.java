@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -21,11 +20,7 @@ public class SubtasksHandlerTest extends HandlerTest {
         taskManager.addTask(new Subtask("Subtask name", "Subtask description", Status.DONE, epic,
                 Duration.ofHours(6), LocalDateTime.of(2025, 6, 15, 15, 30)));
         URI url = URI.create("http://localhost:8080/subtasks");
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(url)
-                .GET()
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = getGetResponse(url);
         Assertions.assertEquals(200, response.statusCode());
         Assertions.assertFalse(taskManager.getAllSubtasks().isEmpty());
         String jsonString = gson.toJson(taskManager.getAllSubtasks());
@@ -39,11 +34,7 @@ public class SubtasksHandlerTest extends HandlerTest {
         taskManager.addTask(new Subtask("Subtask name", "Subtask description", Status.DONE, epic,
                 Duration.ofHours(6), LocalDateTime.of(2025, 6, 15, 15, 30)));
         URI url = URI.create("http://localhost:8080/subtasks/1");
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(url)
-                .GET()
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = getGetResponse(url);
         Assertions.assertEquals(200, response.statusCode());
         String jsonString = gson.toJson(taskManager.getSubtaskById(1));
         Assertions.assertEquals(jsonString, response.body());
@@ -56,11 +47,7 @@ public class SubtasksHandlerTest extends HandlerTest {
         taskManager.addTask(new Subtask("Subtask name", "Subtask description", Status.DONE, epic,
                 Duration.ofHours(6), LocalDateTime.of(2025, 6, 15, 15, 30)));
         URI url = URI.create("http://localhost:8080/subtasks/24");
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(url)
-                .GET()
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = getGetResponse(url);
         Assertions.assertEquals(404, response.statusCode());
     }
 
@@ -71,11 +58,7 @@ public class SubtasksHandlerTest extends HandlerTest {
         taskManager.addTask(new Subtask("Subtask name", "Subtask description", Status.DONE, epic,
                 Duration.ofHours(6), LocalDateTime.of(2025, 6, 15, 15, 30)));
         URI url = URI.create("http://localhost:8080/subtasks/1");
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(url)
-                .DELETE()
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = getDeleteResponse(url);
         Assertions.assertEquals(200, response.statusCode());
         Assertions.assertTrue(taskManager.getAllSubtasks().isEmpty());
         Assertions.assertTrue(response.body().isEmpty());
@@ -87,14 +70,9 @@ public class SubtasksHandlerTest extends HandlerTest {
         taskManager.addTask(epic);
         Subtask subtask = new Subtask("Subtask name", "Subtask description", Status.DONE, epic,
                 Duration.ofHours(6), LocalDateTime.of(2025, 6, 15, 15, 30));
-        String jsonString = gson.toJson(subtask);
         URI url = URI.create("http://localhost:8080/subtasks");
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(jsonString))
-                .build();
         Assertions.assertTrue(taskManager.getAllSubtasks().isEmpty());
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = getPostResponse(url, subtask);
         Assertions.assertEquals(201, response.statusCode());
         Assertions.assertFalse(taskManager.getAllSubtasks().isEmpty());
     }
@@ -109,13 +87,8 @@ public class SubtasksHandlerTest extends HandlerTest {
         Subtask subtask2 = new Subtask("Another Subtask name", "Another Subtask description", Status.DONE, epic,
                 Duration.ofHours(6), LocalDateTime.of(2025, 6, 15, 15, 30));
         subtask2.setId(subtask.getId());
-        String jsonString = gson.toJson(subtask2);
         URI url = URI.create("http://localhost:8080/subtasks");
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(jsonString))
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = getPostResponse(url, subtask2);
         Assertions.assertEquals(201, response.statusCode());
         Assertions.assertEquals("Another Subtask name", taskManager.getSubtaskById(1).getName());
     }
@@ -130,13 +103,8 @@ public class SubtasksHandlerTest extends HandlerTest {
         Subtask subtask2 = new Subtask("Another Subtask name", "Another Subtask description", Status.DONE, epic,
                 Duration.ofHours(6), LocalDateTime.of(2025, 6, 18, 10, 30));
         subtask2.setId(25);
-        String jsonString = gson.toJson(subtask2);
         URI url = URI.create("http://localhost:8080/subtasks");
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(jsonString))
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = getPostResponse(url, subtask2);
         Assertions.assertEquals(406, response.statusCode());
         Assertions.assertEquals(1, taskManager.getAllSubtasks().size());
     }
