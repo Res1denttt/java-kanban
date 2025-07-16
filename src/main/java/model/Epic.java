@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 public class Epic extends Task {
-    private final List<Subtask> subtaskList;
+    private List<Subtask> subtaskList;
     private LocalDateTime endTime;
 
 
@@ -18,11 +18,21 @@ public class Epic extends Task {
     }
 
     public void addSubtask(Subtask subtask) {
-        subtaskList.add(subtask);
+        if (!subtaskList.contains(subtask)) {
+            subtaskList.add(subtask);
+        }
     }
 
     public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
+    }
+
+    public void setSubtaskList(List<Subtask> subtaskList) {
+        this.subtaskList = subtaskList;
+    }
+
+    public void deleteFormSubtaskList(Subtask subtask) {
+        subtaskList.remove(subtask);
     }
 
     @Override

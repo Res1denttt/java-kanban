@@ -18,7 +18,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         this.file = file;
     }
 
-    public void save() {
+    public void save() throws ManagerSaveException {
         List<Task> taskList = new ArrayList<>(tasks.values());
         taskList.addAll(epics.values());
         taskList.addAll(subtasks.values());
@@ -65,15 +65,17 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void addTask(Task task) {
-        super.addTask(task);
+    public int addTask(Task task) {
+        int result = super.addTask(task);
         save();
+        return result;
     }
 
     @Override
-    public void updateTask(Task task) {
-        super.updateTask(task);
+    public int updateTask(Task task) {
+        int result = super.updateTask(task);
         save();
+        return result;
     }
 
     @Override
@@ -105,7 +107,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 .append(task.getDuration().orElse(Duration.ZERO).toMinutes()).append(DELIMITER)
                 .append(Objects.toString(task.getStartTime().orElse(null), "0")).append(DELIMITER);
         if (task instanceof Subtask) {
-            sb.append(((Subtask) task).getEpic().getId());
+            sb.append(((Subtask) task).getEpicId());
         }
         return sb.toString();
     }
